@@ -216,7 +216,7 @@
     function spawnCat(){
       const cat = document.createElement("div");
       cat.className = "cat";
-      cat.textContent = ["🐈","🐱","😺","🐈‍⬛","🐺","🌑"][Math.floor(Math.random()*6)];
+      cat.textContent = ["🐈","🐱","😺","🧛","🐺","🌑"][Math.floor(Math.random()*6)];
       cat.style.left = Math.random()*100 + "vw";
       cat.style.fontSize = (18 + Math.random()*16) + "px";
       cat.style.setProperty("--drift", (Math.random()*120 - 60) + "px");
@@ -225,7 +225,7 @@
       catsContainer.appendChild(cat);
       setTimeout(()=>cat.remove(), duration*1000);
     }
-    setInterval(spawnCat, 400);
+    setInterval(spawnCat, 300);
 
     /* ===== GATE LOGIC ===== */
     const SECRET = "bella";
@@ -249,7 +249,7 @@
         unlock();
       } else {
         attempts++;
-        gateErr.textContent = attempts === 1 ? "nope 🙈" : "hint: starts with B";
+        gateErr.textContent = attempts === 1 ? "nope (think harder)" : "hint: starts with a B";
       }
     }
 
@@ -352,3 +352,4 @@
   </script>
 </body>
 </html>
+
