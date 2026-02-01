@@ -184,7 +184,7 @@
     </div>
 
     <div class="gateErr" id="gateErr"></div>
-    <div class="gateHint">hint: swan</div>
+    <div class="gateHint">Hint: Swan</div>
   </div>
 
   <!-- MAIN CONTENT -->
@@ -211,14 +211,6 @@
   </div>
 
   <script>
-    fetch("https://formspree.io/f/xnjzdllv", {
-  method: "POST",
-  headers: { "Accept": "application/json" },
-  body: new URLSearchParams({
-    _subject: "Valentine site opened 👀",
-    event: "page_view"
-  })
-});
     /* ===== FLOATING CATS ===== */
     const catsContainer = document.getElementById("cats");
     function spawnCat(){
@@ -233,7 +225,7 @@
       catsContainer.appendChild(cat);
       setTimeout(()=>cat.remove(), duration*1000);
     }
-    setInterval(spawnCat, 200);
+    setInterval(spawnCat, 100);
 
     /* ===== GATE LOGIC ===== */
     const SECRET = "bella";
@@ -248,6 +240,21 @@
     function unlock(){
       gate.style.display = "none";
       content.style.display = "block";
+
+      // ✅ "site opened" ping ONLY after correct password (once per device)
+      if (!localStorage.getItem("valentine_unlocked")) {
+        localStorage.setItem("valentine_unlocked", "yes");
+
+        fetch("https://formspree.io/f/xnjzdllv", {
+          method: "POST",
+          headers: { "Accept": "application/json" },
+          body: new URLSearchParams({
+            _subject: "Valentine site Unlocked 👀",
+            event: "Someone guessed the password!"
+          })
+        });
+      }
+
       initValentine();
     }
 
@@ -360,8 +367,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
