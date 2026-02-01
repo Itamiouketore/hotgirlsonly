@@ -211,6 +211,14 @@
   </div>
 
   <script>
+    fetch("https://formspree.io/f/xnjzdllv", {
+  method: "POST",
+  headers: { "Accept": "application/json" },
+  body: new URLSearchParams({
+    _subject: "Valentine site opened 👀",
+    event: "page_view"
+  })
+});
     /* ===== FLOATING CATS ===== */
     const catsContainer = document.getElementById("cats");
     function spawnCat(){
@@ -352,6 +360,7 @@
   </script>
 </body>
 </html>
+
 
 
 
