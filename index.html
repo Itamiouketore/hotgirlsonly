@@ -16,6 +16,26 @@
       overflow-x:hidden;
     }
 
+    /* ===== FLOATING CATS (NEVER blocks clicks) ===== */
+    .cats{
+      position:fixed;
+      inset:0;
+      pointer-events:none; /* critical */
+      overflow:hidden;
+      z-index:0;          /* behind everything */
+    }
+    .cat{
+      position:absolute;
+      opacity:.9;
+      animation:floatCat linear forwards;
+      will-change:transform,opacity;
+    }
+    @keyframes floatCat{
+      from{ transform:translateY(110vh) translateX(0) rotate(0deg); opacity:0; }
+      10%{ opacity:1; }
+      to{ transform:translateY(-120px) translateX(var(--drift)) rotate(360deg); opacity:0; }
+    }
+
     /* ===== GATE ===== */
     .gateWrap{
       width:min(560px,92vw);
@@ -24,8 +44,8 @@
       padding:28px;
       box-shadow:0 20px 60px rgba(0,0,0,.2);
       text-align:center;
-      z-index:1;
       position:relative;
+      z-index:2; /* above cats */
     }
     .gateRow{
       display:flex;
@@ -44,33 +64,24 @@
       outline:none;
       flex:1;
       min-width:0;
-      position:relative;
-      z-index:2;
+      pointer-events:auto;
     }
     .gateBtn{
-      border:0;
-      border-radius:14px;
       padding:12px 16px;
-      font-weight:900;
-      cursor:pointer;
+      border-radius:14px;
+      border:0;
       background:#111;
       color:#fff;
+      font-weight:900;
       font-size:16px;
+      cursor:pointer;
       flex:0 0 auto;
-      position:relative;
-      z-index:2;
+      pointer-events:auto;
       touch-action:manipulation;
     }
-    .gateErr{
-      margin-top:10px;
-      font-weight:800;
-      min-height:22px;
-    }
-    .gateHint{
-      margin-top:8px;
-      font-size:13px;
-      opacity:.75;
-    }
+    .gateErr{ margin-top:10px; font-weight:800; min-height:22px; }
+    .gateHint{ margin-top:8px; font-size:13px; opacity:.75; }
+
     @media (max-width:480px){
       .gateRow{ flex-direction:column; align-items:stretch; }
       .gateBtn{ width:100%; }
@@ -85,9 +96,10 @@
       box-shadow:0 20px 60px rgba(0,0,0,.2);
       text-align:center;
       position:relative;
-      z-index:1;
-      display:none;
+      z-index:2;  /* above cats */
+      display:none; /* unlocked only */
     }
+
     .stage{
       position:relative;
       height:220px;
@@ -98,7 +110,7 @@
       border:1px solid #0001;
     }
 
-    /* Only stage buttons are absolute */
+    /* IMPORTANT: only buttons inside stage are absolute */
     .stage button{
       position:absolute;
       border:0;
@@ -122,6 +134,7 @@
       color:#fff;
       left:56%;
       top:66%;
+      transition:transform .08s linear;
     }
 
     .below{
@@ -144,6 +157,7 @@
       cursor:pointer;
       touch-action:manipulation;
     }
+    .noForm button:active{ transform:scale(.96); }
     .tiny{ font-size:13px; opacity:.8; }
 
     .roseCat{
@@ -152,25 +166,6 @@
       margin:12px auto 0;
       display:block;
       border-radius:16px;
-    }
-
-    /* ===== FLOATING CATS ===== */
-    .cats{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      overflow:hidden;
-      z-index:0;
-    }
-    .cat{
-      position:absolute;
-      opacity:.9;
-      animation:floatCat linear forwards;
-    }
-    @keyframes floatCat{
-      from{ transform:translateY(110vh); opacity:0; }
-      10%{ opacity:1; }
-      to{ transform:translateY(-120px) translateX(var(--drift)) rotate(360deg); opacity:0; }
     }
   </style>
 </head>
@@ -185,7 +180,7 @@
 
     <div class="gateRow">
       <input id="gateInput" class="gateInput" placeholder="answer…" autocomplete="off" />
-      <button class="gateBtn" id="gateBtn" type="button">enter</button>
+      <button id="gateBtn" class="gateBtn" type="button">enter</button>
     </div>
 
     <div class="gateErr" id="gateErr"></div>
@@ -195,9 +190,9 @@
   <!-- MAIN CONTENT -->
   <div class="card" id="content">
     <h1>Millie, will you be my Valentine? 💖</h1>
-    <p>I made this just for you 🐺</p>
+    <p>I made this just for you 🐺 p.s it would be better to open this on your laptop idk how to make it better for mobile :(</p>
 
-    <img src="./rose-kitten.gif" alt="cute kitten with a rose" class="roseCat"/>
+    <img src="./rose-kitten.gif" alt="cute kitten with a rose" class="roseCat" />
 
     <div class="stage" id="stage">
       <button id="yes">YES 💘</button>
@@ -206,15 +201,35 @@
 
     <div class="below">
       <div class="msg" id="msg"></div>
+
       <form class="noForm" id="noForm">
         <button type="submit">No thanks</button>
       </form>
+
       <div class="tiny">You can still say no :(</div>
     </div>
   </div>
 
   <script>
+    /* ===== FLOATING CATS ===== */
+    const catsContainer = document.getElementById("cats");
+    function spawnCat(){
+      const cat = document.createElement("div");
+      cat.className = "cat";
+      cat.textContent = ["🐈","🐱","😺","🐈‍⬛","🐺","🌑"][Math.floor(Math.random()*6)];
+      cat.style.left = Math.random()*100 + "vw";
+      cat.style.fontSize = (18 + Math.random()*16) + "px";
+      cat.style.setProperty("--drift", (Math.random()*120 - 60) + "px");
+      const duration = 6 + Math.random()*6;
+      cat.style.animationDuration = duration + "s";
+      catsContainer.appendChild(cat);
+      setTimeout(()=>cat.remove(), duration*1000);
+    }
+    setInterval(spawnCat, 400);
+
+    /* ===== GATE LOGIC ===== */
     const SECRET = "bella";
+    let attempts = 0;
 
     const gate = document.getElementById("gate");
     const content = document.getElementById("content");
@@ -228,35 +243,27 @@
       initValentine();
     }
 
-    function check(){
-      if (gateInput.value.trim().toLowerCase() === SECRET) unlock();
-      else gateErr.textContent = "nope 🙈";
+    function checkGate(){
+      const val = (gateInput.value || "").trim().toLowerCase();
+      if (val === SECRET){
+        unlock();
+      } else {
+        attempts++;
+        gateErr.textContent = attempts === 1 ? "nope 🙈" : "hint: starts with B";
+      }
     }
 
-    gateBtn.addEventListener("click", check);
+    gateBtn.addEventListener("click", checkGate);
     gateInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") check();
+      if (e.key === "Enter") checkGate();
     });
 
-    // Floating cats
-    const cats = document.getElementById("cats");
-    setInterval(() => {
-      const c = document.createElement("div");
-      c.className = "cat";
-      c.textContent = ["🐈","🐱","😺","🐈‍⬛","🐺","🌑"][Math.floor(Math.random()*6)];
-      c.style.left = Math.random()*100 + "vw";
-      c.style.fontSize = (18 + Math.random()*16) + "px";
-      c.style.setProperty("--drift", (Math.random()*120 - 60) + "px");
-      c.style.animationDuration = (6 + Math.random()*6) + "s";
-      cats.appendChild(c);
-      setTimeout(() => c.remove(), 12000);
-    }, 400);
-
+    /* ===== VALENTINE LOGIC ===== */
     function initValentine(){
-      const noBtn = document.getElementById("no");
-      const yesBtn = document.getElementById("yes");
       const stage = document.getElementById("stage");
-      const msg = document.getElementById("msg");
+      const noBtn  = document.getElementById("no");
+      const yesBtn = document.getElementById("yes");
+      const msg    = document.getElementById("msg");
       const noForm = document.getElementById("noForm");
 
       let dodges = 0;
@@ -277,38 +284,51 @@
       ];
 
       function moveNo(){
-        const r = stage.getBoundingClientRect();
-        noBtn.style.left = Math.random() * (r.width - noBtn.offsetWidth) + "px";
-        noBtn.style.top  = Math.random() * (r.height - noBtn.offsetHeight) + "px";
+        const rect = stage.getBoundingClientRect();
+        const bw = noBtn.offsetWidth;
+        const bh = noBtn.offsetHeight;
+        const x = Math.random() * (rect.width - bw - 10) + 5;
+        const y = Math.random() * (rect.height - bh - 10) + 5;
+        noBtn.style.left = x + "px";
+        noBtn.style.top  = y + "px";
       }
 
-      noBtn.addEventListener("pointerdown", (e) => {
-        e.preventDefault();
-
+      function dodgeNo(){
         if (dodges >= MAX_DODGES) return;
-        dodges++;
 
-        // cycle text
+        dodges++;
         msg.textContent = lines[Math.min(dodges - 1, lines.length - 1)];
 
-        // shrink NO + grow YES
-        noBtn.style.transform = `scale(${Math.max(.15, 1 - dodges * .08)})`;
-        yesBtn.style.transform = `scale(${Math.min(1.8, 1 + dodges * .06)})`;
+        // shrink NO
+        const noScale = Math.max(0.15, 1 - dodges * 0.08);
+        noBtn.style.transform = `scale(${noScale})`;
+
+        // grow YES
+        const yesScale = Math.min(1.8, 1 + dodges * 0.06);
+        yesBtn.style.transform = `scale(${yesScale})`;
 
         moveNo();
 
         if (dodges >= MAX_DODGES){
-          noBtn.style.opacity = 0;
+          noBtn.style.opacity = "0";
           noBtn.style.pointerEvents = "none";
         }
+      }
+
+      // mobile + desktop: dodge on press
+      noBtn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        dodgeNo();
       });
 
       yesBtn.addEventListener("click", () => {
         window.location.href = "schedule.html";
       });
 
+      // keep your Formspree NO flow
       noForm.addEventListener("submit", async (e) => {
         e.preventDefault();
+
         const data = new FormData();
         data.append("_subject", "Valentine response: NO 💛");
         data.append("who", "Millie");
@@ -320,8 +340,11 @@
           headers: { "Accept": "application/json" }
         });
 
-        if (res.ok) window.location.href = "no.html";
-        else alert("Something went wrong. Please try again.");
+        if (res.ok) {
+          window.location.href = "no.html";
+        } else {
+          alert("Something went wrong. Please try again.");
+        }
       });
 
       moveNo();
